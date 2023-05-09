@@ -1,0 +1,57 @@
+
+set -e
+
+
+system="linux"
+if [ "$(uname -s)" == "Darwin" ]; then
+    system="macos"
+fi
+
+arch=$(uname -m)
+if [ "$arch" != "arm64" ] && [ "$arch" != "x64" ]; then
+    echo "Unsupported architecture: $system $arch"
+    exit 1
+fi
+
+version_check_url="https://play.zilch.local/zilch-connect/bin-$system-$arch"
+
+echo "⏱️  Initializing"
+
+if which curl >/dev/null ; then
+    latest_version=$(curl --silent --show-error --fail "$version_check_url")
+elif which wget >/dev/null ; then
+    # TODO fail script if version check fails
+    latest_version=$(wget -q "$version_check_url")
+else
+    echo "Either curl or wget must be available."
+    exit 1
+fi
+
+zilch_connect_dir="$HOME/.zilch/zilch-connect"
+zilch_connect="$zilch_connect_dir/$latest_version"
+
+if ! test -f "$zilch_connect"; then
+    echo "🌐 Updating"
+    
+    rm -rf "$zilch_connect_dir"
+    mkdir -p "$zilch_connect_dir"
+
+    download_url="https://play.zilch.local/zilch-connect/$latest_version"
+    
+    if which curl >/dev/null ; then
+        curl --silent --show-error --fail "$download_url" -o "$zilch_connect"
+    else
+        wget -q "$download_url" -O "$zilch_connect"
+    fi
+    
+    chmod +x "$zilch_connect"
+
+    if [ "$system" == "macos" ]; then
+        codesign -f --sign - "$zilch_connect"
+    fi
+
+    echo "✅ Update complete"
+fi
+
+$zilch_connect "@"
+

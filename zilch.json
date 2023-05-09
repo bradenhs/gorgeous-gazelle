@@ -1,0 +1,12 @@
+{
+  "v": 1,
+  "name": "Gorgeous Gazelle",
+  "avatar": "daaecuOHnlltaZ8aa",
+  "preferredColor": "blue",
+  "language": "javascript.node",
+  "game": {
+    "owner": "bradenhs",
+    "repo": "game1"
+  },
+  "run": "node main.js"
+}
