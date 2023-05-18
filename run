@@ -53,5 +53,5 @@ if ! test -f "$zilch_connect"; then
     echo "✅ Update complete"
 fi
 
-$zilch_connect "@"
+$zilch_connect "$@"
 
