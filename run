@@ -1,6 +1,13 @@
-
 set -e
 
+origin="https://play.zilch.dev"
+for var in "$@"
+do
+    if [[ $var == --origin=* ]]; then
+        origin="${var:9}"
+        break
+    fi
+done
 
 system="linux"
 if [ "$(uname -s)" == "Darwin" ]; then
@@ -13,7 +20,7 @@ if [ "$arch" != "arm64" ] && [ "$arch" != "x64" ]; then
     exit 1
 fi
 
-version_check_url="https://play.zilch.local/zilch-connect/bin-$system-$arch"
+version_check_url="$origin/zilch-connect/bin-$system-$arch"
 
 echo "⏱️  Initializing"
 
@@ -36,7 +43,7 @@ if ! test -f "$zilch_connect"; then
     rm -rf "$zilch_connect_dir"
     mkdir -p "$zilch_connect_dir"
 
-    download_url="https://play.zilch.local/zilch-connect/$latest_version"
+    download_url="$origin/zilch-connect/$latest_version"
     
     if which curl >/dev/null ; then
         curl --silent --show-error --fail "$download_url" -o "$zilch_connect"
@@ -45,8 +52,7 @@ if ! test -f "$zilch_connect"; then
     fi
     
     chmod +x "$zilch_connect"
-
-    if [ "$system" == "macos" ]; then
+    if [ "$system" == "macos" ] && [ "$origin" != "https://play.zilch.dev" ]; then
         codesign -f --sign - "$zilch_connect"
     fi
 
@@ -54,4 +60,3 @@ if ! test -f "$zilch_connect"; then
 fi
 
 $zilch_connect "$@"
-
